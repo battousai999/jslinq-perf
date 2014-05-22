@@ -1,0 +1,31 @@
+<html>
+<head>
+    <script src="./jquery-1.11.1.min.js"></script>
+    <script src="./jslinq.js"></script>
+    <script src="./lazy.js"></script>
+    <script src="./underscore-min.js"></script>
+    <script src="./benchmark.js"></script>
+    <script src="./race.js"></script>
+    <script src="./test.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="./default.css" />
+    
+    <style>
+        #results { border: black 1px; }
+        #results th { width: 120px; text-align: left; }
+        #results td:first-child { text-align: left; }
+        #results td { text-align: right; }
+    </style>
+</head>
+<body>
+    <table id='results' class='bordered'>
+        <tr>
+            <th>Test</th>
+            <th>jslinq.js (mine)</th>
+            <th>Lazy.js</th>
+            <th>underscore.js</th>
+        </tr>
+        <tbody id='results-body'></tbody>
+    </table>
+</body>
+</html>
