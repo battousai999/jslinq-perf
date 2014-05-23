@@ -4,6 +4,9 @@
     <script src="./jslinq.js"></script>
     <script src="./lazy.js"></script>
     <script src="./underscore-min.js"></script>
+    <script src="./linq.js"></script>
+    <script src="./jslinq-other.js"></script>
+    <script src="./from.js"></script>
     <script src="./benchmark.js"></script>
     <script src="./race.js"></script>
     <script src="./test.js"></script>
@@ -11,6 +14,7 @@
     <link rel="stylesheet" type="text/css" href="./default.css" />
     
     <style>
+        body { font-family: Arial; font-size: 10pt; }
         #results { border: black 1px; }
         #results th { width: 120px; text-align: left; }
         #results td:first-child { text-align: left; }
@@ -18,12 +22,16 @@
     </style>
 </head>
 <body>
+    <span>Results in operations/sec (bigger values are better)</span>
     <table id='results' class='bordered'>
         <tr>
             <th>Test</th>
             <th>jslinq.js (mine)</th>
             <th>Lazy.js</th>
             <th>underscore.js</th>
+            <th>linq.js</th>
+            <th>JSLINQ</th>
+            <th>from.js</th>
         </tr>
         <tbody id='results-body'></tbody>
     </table>
