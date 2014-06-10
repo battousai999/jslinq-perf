@@ -19,14 +19,15 @@
         #results th { width: 120px; text-align: left; }
         #results td:first-child { text-align: left; }
         #results td { text-align: right; }
+        #lblIteration { font-weight: bold; }
     </style>
 </head>
 <body>
-    <span>Results in operations/sec (bigger values are better)</span>
+    <span>Results in operations/sec (bigger values are better)</span>&nbsp;&nbsp;&nbsp;<span id='lblIteration'>Iteration #1</span>
     <table id='results' class='bordered'>
         <tr>
             <th>Test</th>
-            <th>jslinq.js (mine)</th>
+            <th>$linq</th>
             <th>Lazy.js</th>
             <th>underscore.js</th>
             <th>linq.js</th>

@@ -11,6 +11,9 @@ function mergeZip(x, y) { return [x, y]; }
 var jaggedArray = [[1, 2, 3],[[4, 5, 6],[7, 8, 9],[[10, 11],12],13,14,[15, 16],17],[18,19,20,[21, 22]],[23, 24, 25],26,27,28,[29, 30],[[31, 32, 33],[34, 35]],36];
 
 var arraySize = 100;
+var iterations = 10;
+var iteration = 1;
+var totalResults = [];
 
 function myFlatten(values)
 {
@@ -57,7 +60,7 @@ function round(num)
 $(document).ready(function ()
 {
     marathon = new Race.Marathon();
-    /*
+
     marathon.add(new Race({
         description: 'map',
         impls: {
@@ -158,7 +161,7 @@ $(document).ready(function ()
         },
         inputs: [ { name: 'values', values: [arr(0, arraySize), arr(round(arraySize * 0.5), round(arraySize * 1.5))], size: arraySize } ]
     }));
-    
+
     marathon.add(new Race({
         description: 'zip',
         impls: {
@@ -174,7 +177,7 @@ $(document).ready(function ()
         impls: {
             'jslinq.js': function (values) { return $linq(values).select(increment).where(isEven).toArray(); },
             'lazy.js': function (values) { return Lazy(values).map(increment).filter(isEven).toArray(); },
-            'underscore.js': function (values) { return _.chain(values).map(increment).filter(isEven); },
+            'underscore.js': function (values) { return _.chain(values).map(increment).filter(isEven).value(); },
             'linq.js': function (values) { return Enumerable.From(values).Select(increment).Where(isEven).ToArray(); },
             'JSLINQ': function (values) { return JSLINQ(values).Select(increment).Where(isEven).ToArray(); },
             'from.js': function (values) { return from(values).select(increment).where(isEven).toArray(); }
@@ -205,7 +208,7 @@ $(document).ready(function ()
         },
         inputs: [ { name: 'values', values: [dupes(0, round(arraySize * 0.5), arraySize)], size: arraySize } ]
     }));
-    
+
     marathon.add(new Race({
         description: 'map * union',
         impls: {
@@ -230,7 +233,7 @@ $(document).ready(function ()
         },
         inputs: [ { name: 'values', values: [arr(0, arraySize), arr(round(arraySize * 0.5), round(arraySize * 1.5))], size: arraySize } ]
     }));
-    */
+
     marathon.add(new Race({
         description: 'map * zip',
         impls: {
@@ -241,8 +244,7 @@ $(document).ready(function ()
         inputs: [ { name: 'values', values: [arr(0, arraySize), arr(round(arraySize * 0.5), round(arraySize * 1.5))], size: arraySize } ]
     }));
     
-    marathon.start({
-        complete: function (resultGroups)
+    marathon_complete = function(resultGroups)
         {
             var tbody = $('#results-body');            
             var tr = $('<tr>');            
@@ -257,7 +259,7 @@ $(document).ready(function ()
                     return format(results.results[name]);
             };
             
-            $('<td>').text(results.race).appendTo(tr);
+            $('<td>').text(results.race + ' (#' + iteration + ')').appendTo(tr);
             $('<td>').text(val('jslinq.js')).appendTo(tr);
             $('<td>').text(val('lazy.js')).appendTo(tr);
             $('<td>').text(val('underscore.js')).appendTo(tr);            
@@ -266,12 +268,86 @@ $(document).ready(function ()
             $('<td>').text(val('from.js')).appendTo(tr);            
             
             tbody.append(tr);
-        },
+        };
         
-        mismatch: function (x)
+    marathon_marathonComplete = function (results)
         {
-            alert(x);
-        }
+            totalResults.push(results);
+            
+            iteration += 1;
+            
+            if (iteration > iterations)
+            {
+                displayResults();
+                return;
+            }
+            
+            $('#lblIteration').text('Iteration #' + iteration);
+
+            marathon.start({
+                complete: marathon_complete,        
+                marathonComplete: marathon_marathonComplete,        
+                mismatch: marathon_mismatch
+            });
+        };
+        
+    marathon_mismatch = function (x)
+        {
+            alert(JSON.stringify(x));
+        };
+    
+    marathon.start({
+        complete: marathon_complete,        
+        marathonComplete: marathon_marathonComplete,        
+        mismatch: marathon_mismatch
     });
 });
+
+function displayResults()
+{
+    var tbody = $('#results-body'); 
+    
+    tbody.empty();
+    
+    var raceNames = $linq($linq(totalResults).first()).select('x => x.race');
+    
+    raceNames.foreach(function (raceName)
+    {
+        var raceResults = $linq(totalResults).select(function (x) 
+        { 
+            return $linq(x).first(function (y) { return y.race == raceName; });
+        });
+        
+        var results = {};
+        
+        $linq(Object.keys(raceResults.first().results)).foreach(function (implementation)
+        {
+            results[implementation] = raceResults.average(function (x) { return x.results[implementation]; });
+        });
+    
+        var tr = $('<tr>');            
+        var format = function (x) { return Benchmark.formatNumber(x.toFixed(0)); };
+        
+        var val = function (name) 
+        {
+            if (results[name] === undefined)
+                return 'n/a';
+            else
+                return format(results[name]);
+        };
+        
+        $('<td>').text(raceName).appendTo(tr);
+        $('<td>').text(val('jslinq.js')).appendTo(tr);
+        $('<td>').text(val('lazy.js')).appendTo(tr);
+        $('<td>').text(val('underscore.js')).appendTo(tr);            
+        $('<td>').text(val('linq.js')).appendTo(tr);            
+        $('<td>').text(val('JSLINQ')).appendTo(tr);            
+        $('<td>').text(val('from.js')).appendTo(tr);            
+        
+        tbody.append(tr);
+    });
+    
+    $('#lblIteration').text('Finished.');
+}
+
 
