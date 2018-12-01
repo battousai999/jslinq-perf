@@ -441,6 +441,29 @@
       return words;
     },
 
+    randomObject: function ()
+    {
+      var obj = {
+        prop1: this.randomInt(0, 100000),
+        prop2: this.randomWord(randomInt(3, 20)),
+        prop3: this.randomSentence(randomInt(4, 20))
+      };
+
+      return obj;
+    },
+
+    randomObjects: function (N)
+    {
+      var objs = [];
+
+      while (objs.length < N)
+      {
+        objs.push(randomObject());
+      }
+
+      return objs;
+    },
+
     /**
      * Produces a string of N random words.
      */
